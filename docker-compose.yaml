@@ -34,7 +34,7 @@ services:
     image: dpage/pgadmin4
     container_name: gbiz0-ifsp-pgadmin #nome do container
     environment:
-      PGADMIN_DEFAULT_EMAIL: postgres@servidor.container_name
+      PGADMIN_DEFAULT_EMAIL: postgres@servidor.com
       PGADMIN_DEFAULT_PASSWORD: postdba
     ports:
       - "8081:80" #porta do pgadmin
