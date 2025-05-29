@@ -1,0 +1,86 @@
+services:
+  php:
+    build:
+      context: ./php #onde está o dockerfile
+      dockerfile: Dockerfile
+
+    container_name: gbiz0-ifsp-php #nome do container
+    restart: always
+    volumes:
+      - ./web:/var/www/html #copiar a pasta web para dentro do container
+    networks:
+      - lamp-network
+    ports:
+      - "80:80"
+    links:
+      - mysql
+      - postgres
+
+  postgres:
+    image: postgres:12
+    container_name: gbiz0-ifsp-postgres #nome do container
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postdba
+
+    ports:
+      - "5432:5432" #porta do postgres
+    networks:
+      - lamp-network
+
+
+  pgadmin:    
+    image: dpage/pgadmin4
+    container_name: gbiz0-ifsp-pgadmin #nome do container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: postgres@servidor.container_name
+      PGADMIN_DEFAULT_PASSWORD: postdba
+    ports:
+      - "8081:80" #porta do pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - lamp-network
+
+  mysql:
+    image: mysql:5.7
+    container_name: gbiz0-ifsp-mysql #nome do container
+    restart: always
+    volumes:
+      - ./mysql:/var/lib/mysql #copiar a pasta mysql para dentro do container
+    ports:
+      - "3306:3306" #porta do mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: teste
+    networks:
+      - lamp-network
+
+  phpmyadmin:
+    build:
+      context: ./phpmyadmin
+      dockerfile: Dockerfile
+    container_name: gbiz0-ifsp-phpmyadmin #nome do container
+    restart: always
+    volumes:
+      - /sessions
+    ports:
+      - "8080:80" #porta do phpmyadmin
+    links:
+      - mysql
+    environment:
+      PMA_ARBITRARY: 0
+      PMA_HOST: mysql
+    networks:
+      - lamp-network
+
+networks:
+  lamp-network:
+    driver: bridge
+  
+volumes:
+  postgres:
+  mysql:
+  web:
+    driver: local
